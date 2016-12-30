@@ -1,5 +1,5 @@
 {
-  "name": "mero/yii2-monolog",
+  "name": "sbooker/yii2-monolog",
   "description": "The Monolog integration for the Yii framework.",
   "keywords": [
     "yii2",
@@ -10,13 +10,13 @@
   "type": "yii2-extension",
   "license": "MIT",
   "support": {
-    "issues": "https://github.com/merorafael/yii2-monolog/issues",
-    "source": "https://github.com/merorafael/yii2-monolog"
+    "issues": "https://github.com/sbooker/yii2-monolog/issues",
+    "source": "https://github.com/sbooker/yii2-monolog"
   },
   "authors": [
     {
-      "name": "Rafael Mello",
-      "email": "merorafael@gmail.com"
+      "name": "Sergey Knigin",
+      "email": "serge.booker@gmail.com"
     }
   ],
   "require": {
