@@ -27,10 +27,10 @@ class MonologComponent extends Component
      */
     protected $strategy;
 
-    public function __construct(array $channels = [], array $config = [])
+    public function __construct(array $config = [])
     {
-        if (!isset($channels['main'])) {
-            $channels['main'] = [
+        if ( !isset($config['channels'])) {
+            $config['channels']['main'] = [
                 'handler' => [
                     [
                         'type' => 'rotating_file',
@@ -39,7 +39,7 @@ class MonologComponent extends Component
                 ],
             ];
         }
-        $this->channels = $channels;
+        $this->channels = $config['channels'];
         $this->strategy = new Strategy();
         parent::__construct($config);
     }
