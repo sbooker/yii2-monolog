@@ -39,7 +39,7 @@ class GelfFactory extends AbstractFactory
     public function createHandler()
     {
         return new GelfHandler(
-            $this->config['publisher'],
+            \Yii::$app->get($this->config['publisher']),
             $this->config['level'],
             $this->config['bubble']
         );
