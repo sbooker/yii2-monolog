@@ -31,6 +31,11 @@ class MonologTarget extends Target
     public $channel = 'main';
 
     /**
+     * @var string[]
+     */
+    public $excludeCategories = [];
+
+    /**
      * @var array Interpret Yii 2 levels to Monolog levels
      */
     private $monologLevels = [
@@ -59,10 +64,12 @@ class MonologTarget extends Target
         $logger = $this->component->getLogger($this->channel);
         foreach ($this->messages as $message) {
             list($text, $level, $category) = $message;
-            $logger->log(
-                $this->monologLevels[$level],
-                "[$category] $text"
-            );
+            if (!in_array($category, $this->excludeCategories)) {
+                $logger->log(
+                    $this->monologLevels[$level],
+                    "[$category] $text"
+                );
+            }
         }
     }
 }
