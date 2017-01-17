@@ -88,7 +88,7 @@ class MonologComponent extends Component
             }
         }
         if (!empty($config['processor']) && is_array($config['processor'])) {
-            $processors = $this->buildProcessorList($config['processor']);
+            $processors = $config['processor'] = $this->buildProcessorList($config['processor']);
         }
         $this->openChannel($name, $handlers, $processors);
 
@@ -172,27 +172,29 @@ class MonologComponent extends Component
     }
 
     /**
-     * @param mixed[] $sourceProcessorList
+     * @param mixed[] $processorList
      *
      * @return callable[]
      */
-    private function buildProcessorList(array $sourceProcessorList)
+    private function buildProcessorList(array $processorList)
     {
-        $destinationProcessorList = [];
-        foreach ($sourceProcessorList as &$processor) {
+        $dstProcessorList = [];
+        foreach ($processorList as $processor) {
             if (is_string($processor)) {
                 $processor = \Yii::$app->get($processor);
             }
             if ($processor instanceof LogRecordProcessor) {
-                $processor = function (array $record) use ($processor) {
+                $dstProcessorList[] = function (array $record) use ($processor) {
                     return $processor->process($record);
                 };
+                continue;
             }
-            if (is_callable($processor)) {
-                $destinationProcessorList[] = $processor;
+            if (!is_callable($processor)) {
+                throw new \RuntimeException('Processor must be callable');
             }
+            $dstProcessorList[] = $processor;
         }
 
-        return $destinationProcessorList;
+        return $dstProcessorList;
     }
 }
