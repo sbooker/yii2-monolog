@@ -5,6 +5,7 @@ namespace Mero\Monolog;
 use Mero\Monolog\Exception\HandlerNotFoundException;
 use Mero\Monolog\Exception\LoggerNotFoundException;
 use Mero\Monolog\Handler\Strategy;
+use Mero\Monolog\Processor\LogRecordProcessor;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Handler\AbstractHandler;
 use yii\base\Component;
@@ -87,27 +88,9 @@ class MonologComponent extends Component
             }
         }
         if (!empty($config['processor']) && is_array($config['processor'])) {
-            $processors = $config['processor'];
+            $processors = $this->buildProcessorList($config['processor']);
         }
         $this->openChannel($name, $handlers, $processors);
-
-        return;
-    }
-
-    /**
-     * Open a new logger channel.
-     *
-     * @param string $name       Logger channel name
-     * @param array  $handlers   Handlers collection
-     * @param array  $processors Processors collection
-     */
-    protected function openChannel($name, array $handlers, array $processors)
-    {
-        if (isset($this->channels[$name]) && $this->channels[$name] instanceof Logger) {
-            throw new \InvalidArgumentException("Channel '{$name}' already exists");
-        }
-
-        $this->channels[$name] = new Logger($name, $handlers, $processors);
 
         return;
     }
@@ -124,20 +107,6 @@ class MonologComponent extends Component
         }
 
         return;
-    }
-
-    /**
-     * Create handler instance.
-     *
-     * @param array $config Configuration parameters
-     *
-     * @return AbstractHandler
-     */
-    protected function createHandlerInstance(array $config)
-    {
-        $factory = $this->strategy->createFactory($config);
-
-        return $factory->createHandler();
     }
 
     /**
@@ -168,5 +137,62 @@ class MonologComponent extends Component
         }
 
         return $this->channels[$name];
+    }
+
+    /**
+     * Open a new logger channel.
+     *
+     * @param string $name       Logger channel name
+     * @param array  $handlers   Handlers collection
+     * @param array  $processors Processors collection
+     */
+    protected function openChannel($name, array $handlers, array $processors)
+    {
+        if (isset($this->channels[$name]) && $this->channels[$name] instanceof Logger) {
+            throw new \InvalidArgumentException("Channel '{$name}' already exists");
+        }
+
+        $this->channels[$name] = new Logger($name, $handlers, $processors);
+
+        return;
+    }
+
+    /**
+     * Create handler instance.
+     *
+     * @param array $config Configuration parameters
+     *
+     * @return AbstractHandler
+     */
+    protected function createHandlerInstance(array $config)
+    {
+        $factory = $this->strategy->createFactory($config);
+
+        return $factory->createHandler();
+    }
+
+    /**
+     * @param mixed[] $sourceProcessorList
+     *
+     * @return callable[]
+     */
+    private function buildProcessorList(array $sourceProcessorList)
+    {
+        $destinationProcessorList = [];
+        foreach ($sourceProcessorList as &$processor) {
+            if (is_string($processor)) {
+                $processor = \Yii::$app->get($processor);
+            }
+            if ($processor instanceof LogRecordProcessor) {
+                $processor = function (array $record) use ($processor) {
+                    return $processor->process($record);
+                };
+            }
+            if (is_callable($processor)) {
+                $destinationProcessorList[] = $processor;
+            }
+        }
+
+        return $destinationProcessorList;
     }
 }
