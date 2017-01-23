@@ -76,10 +76,10 @@ class MonologComponent extends Component
                 }
                 if (is_array($handler)) {
                     $handlerObject = $this->createHandlerInstance($handler);
-                    if (array_key_exists('formatter', $handler) &&
-                        $handler['formatter'] instanceof FormatterInterface
-                    ) {
-                        $handlerObject->setFormatter($handler['formatter']);
+                    if (array_key_exists('formatter', $handler)){
+                        $handlerObject->setFormatter(
+                            $this->buildFormatter($handler['formatter'])
+                        );
                     }
                 } else {
                     $handlerObject = $handler;
@@ -196,5 +196,22 @@ class MonologComponent extends Component
         }
 
         return $dstProcessorList;
+    }
+
+    /**
+     * @param string | FormatterInterface $formatter
+     *
+     * @return FormatterInterface
+     */
+    private function buildFormatter($formatter)
+    {
+        if (is_string($formatter)) {
+            $formatter = \Yii::$app->get($formatter);
+        }
+        if ($formatter instanceof FormatterInterface) {
+            return $formatter;
+        }
+
+        throw new \RuntimeException('Formatter must be instance of ' . FormatterInterface::class);
     }
 }
