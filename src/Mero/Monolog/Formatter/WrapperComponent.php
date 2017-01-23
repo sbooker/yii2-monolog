@@ -52,6 +52,6 @@ final class WrapperComponent extends Component implements FormatterInterface
     {
         $class = $this->formatterClass;
         
-        return new $class(...$this->params);
+        return new $class(...array_values($this->params));
     }
 }
