@@ -87,7 +87,7 @@ class MonologComponent extends Component
     public function createChannel($name, array $config)
     {
         $handlers = [];
-        $processors = [];
+
         if (!empty($config['handler']) && is_array($config['handler'])) {
             foreach ($config['handler'] as $handler) {
                 if (!is_array($handler) && !$handler instanceof AbstractHandler) {
