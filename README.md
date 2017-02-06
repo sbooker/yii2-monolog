@@ -34,14 +34,17 @@ return [
     'components' => [
         'monolog' => [
             'class' => '\Mero\Monolog\MonologComponent',
-            'channels' => [
+            'handlers' => [
                 'main' => [
-                    'handler' => [
-                        //Handler object or array configuration
-                    ],
-                    'processor' => [],
+                    'type' => 'stream',
+                    'path' => '@app/runtime/logs/main.log',
+                    'level' => 'debug',
+                    'channels' => [ 'main', ]
                 ],
             ],
+            'processor' = [
+                'logProcessor', // component id
+            ]
         ],
     ],
     //....
@@ -50,46 +53,6 @@ return [
 
 You can configure multiple channels and different handlers and processors for each channel.
 
-**Example**
-
-```php
-return [
-    //...
-        'channels' => [
-            'main' => [
-                'handler' => [
-                    [
-                        'type' => 'stream',
-                        'path' => '@app/runtime/logs/main_' . date('Y-m-d') . '.log',
-                        'level' => 'debug'
-                    ]
-                ],
-                'processor' => [],
-            ],
-            'channel1' => [
-                'handler' => [
-                    [
-                        'type' => 'stream',
-                        'path' => '@app/runtime/logs/channel1_' . date('Y-m-d') . '.log',
-                        'level' => 'debug'
-                    ]
-                ],
-                'processor' => [],
-            ],
-            'channel2' => [
-                'handler' => [
-                    [
-                        'type' => 'stream',
-                        'path' => '@app/runtime/logs/channel1_' . date('Y-m-d') . '.log',
-                        'level' => 'debug'
-                    ]
-                ],
-                'processor' => [],
-            ],
-        ],
-    //...
-];
-```
 
 Handlers
 --------
