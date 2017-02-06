@@ -8,8 +8,8 @@ use Mero\Monolog\Handler\Strategy;
 use Mero\Monolog\Processor\LogRecordProcessor;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Handler\AbstractHandler;
-use yii\base\Component;
 use Monolog\Logger;
+use yii\base\Component;
 
 /**
  * MonologComponent is an component for the Monolog library.
@@ -21,8 +21,13 @@ class MonologComponent extends Component
     /**
      * @var array Logger channels
      */
-    public $channels;
+    private $channels;
 
+    /** @var  array - configuration array */
+    private $handlers;
+
+    /** @var \callable[]  */
+    private $processors;
     /**
      * @var Strategy Handler strategy to create factory
      */
@@ -30,17 +35,20 @@ class MonologComponent extends Component
 
     public function __construct(array $config = [])
     {
-        if ( !isset($config['channels'])) {
-            $config['channels']['main'] = [
-                'handler' => [
-                    [
-                        'type' => 'rotating_file',
-                        'path' => '@app/runtime/logs/log_'.date('Y-m-d').'.log',
-                    ],
-                ],
+        if ( !isset($config['handlers'])) {
+            $config['handlers']['main'] = [
+                'type'      => 'rotating_file',
+                'path'      => '@app/runtime/logs/log.log',
+                'level'     => 'debug',
             ];
         }
-        $this->channels = $config['channels'];
+        if ( !isset($config['processor'])) {
+            $config['processor'] = [];
+        }
+
+        $this->handlers = $config['handlers'];
+        $this->processors = $this->buildProcessorList($config['processor']);
+        unset($config['handlers'], $config['processor']);
         $this->strategy = new Strategy();
         parent::__construct($config);
     }
@@ -50,6 +58,17 @@ class MonologComponent extends Component
      */
     public function init()
     {
+        foreach ($this->handlers as $key => $handlerConfig) {
+            if (!isset($handlerConfig['channels']) || empty($handlerConfig['channels'])) {
+                $handlerConfig['channels'] = ['main'];
+            }
+            $channels = $handlerConfig['channels'];
+            unset($handlerConfig['channels']);
+            foreach ($channels as $channel) {
+                $this->channels[$channel]['handlers'][] = $handlerConfig;
+            }
+        }
+
         foreach ($this->channels as $name => $config) {
             $this->createChannel($name, $config);
         }
@@ -87,10 +106,8 @@ class MonologComponent extends Component
                 $handlers[] = $handlerObject;
             }
         }
-        if (!empty($config['processor']) && is_array($config['processor'])) {
-            $processors = $config['processor'] = $this->buildProcessorList($config['processor']);
-        }
-        $this->openChannel($name, $handlers, $processors);
+
+        $this->openChannel($name, $handlers, $this->processors);
 
         return;
     }
