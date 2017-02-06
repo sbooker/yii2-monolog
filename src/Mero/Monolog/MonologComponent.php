@@ -88,8 +88,8 @@ class MonologComponent extends Component
     {
         $handlers = [];
 
-        if (!empty($config['handler']) && is_array($config['handler'])) {
-            foreach ($config['handler'] as $handler) {
+        if (!empty($config['handlers']) && is_array($config['handlers'])) {
+            foreach ($config['handlers'] as $handler) {
                 if (!is_array($handler) && !$handler instanceof AbstractHandler) {
                     throw new HandlerNotFoundException();
                 }
