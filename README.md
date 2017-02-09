@@ -20,7 +20,7 @@ Instalation with composer
 -------------------------
 
 1. Open your project directory;
-2. Run `composer require mero/yii2-monolog` to add Monolog in your project vendor.
+2. Run `composer require sbooker/yii2-monolog` to add Monolog in your project vendor.
 
 Configuration
 -------------
