@@ -5,6 +5,7 @@ namespace Mero\Monolog\Target;
 use Mero\Monolog\MonologComponent;
 use Monolog\Logger;
 use yii\di\Instance;
+use yii\helpers\VarDumper;
 use yii\log\Logger as YiiLogger;
 use yii\log\Target;
 
@@ -59,10 +60,27 @@ class MonologTarget extends Target
         $logger = $this->component->getLogger($this->channel);
         foreach ($this->messages as $message) {
             list($text, $level, $category) = $message;
-            $logger->log(
-                $this->monologLevels[$level],
-                "[$category] $text"
-            );
+
+            $logger->log($this->monologLevels[$level], sprintf('[%s] %s', $category, $this->stringifyText($text)));
         }
+    }
+
+    /**
+     * @param mixed $text
+     *
+     * @return string
+     */
+    private function stringifyText($text)
+    {
+        if (!is_string($text)) {
+            // exceptions may not be serializable if in the call stack somewhere is a Closure
+            if ($text instanceof \Throwable || $text instanceof \Exception) {
+                $text = (string) $text;
+            } else {
+                $text = VarDumper::export($text);
+            }
+        }
+
+        return $text;
     }
 }
