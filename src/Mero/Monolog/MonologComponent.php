@@ -10,6 +10,7 @@ use Monolog\Formatter\FormatterInterface;
 use Monolog\Handler\AbstractHandler;
 use yii\base\Component;
 use Monolog\Logger;
+use yii\di\Instance;
 
 /**
  * MonologComponent is an component for the Monolog library.
@@ -181,7 +182,7 @@ class MonologComponent extends Component
         $dstProcessorList = [];
         foreach ($processorList as $processor) {
             if (is_string($processor)) {
-                $processor = \Yii::$app->get($processor);
+                $processor = Instance::ensure($processor);
             }
             if ($processor instanceof LogRecordProcessor) {
                 $dstProcessorList[] = function (array $record) use ($processor) {

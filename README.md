@@ -32,6 +32,9 @@ The channel "main" is required in component and used when no channel is setted t
 return [
     //....
     'components' => [
+        'psrProcessor' => [
+            'class' => Monolog\Processor\PsrLogMessageProcessor::class
+        ],
         'monolog' => [
             'class' => '\Mero\Monolog\MonologComponent',
             'channels' => [
@@ -39,7 +42,9 @@ return [
                     'handler' => [
                         //Handler object or array configuration
                     ],
-                    'processor' => [],
+                    'processor' => [
+                        'psrProcessor',
+                    ],
                 ],
             ],
         ],
