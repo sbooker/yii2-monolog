@@ -43,7 +43,7 @@ return [
                 ],
             ],
             'processor' = [
-                'logProcessor', // component id
+                'logProcessor', // id in ServiceLocator or Container
             ]
         ],
     ],
